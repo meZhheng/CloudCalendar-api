@@ -27,3 +27,6 @@ PhpStudy
     从交大软件授权中心的JetBrainsToolbox中下载PhpStorm，打开项目并启动内建php服务器监听8000端口
     相应地，将前端代码/src/api/api.ts中，请求url前加入localhost:8000
     如：'/login.php'修改为'localhost:8000/login.php'
+
+## 注意事项
+PHP的GD库不支持中文路径，请确保路径中没有中文
