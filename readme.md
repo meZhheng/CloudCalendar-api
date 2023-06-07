@@ -20,7 +20,9 @@ extension=openssl
 ```
 ### 本地运行
 #### 集成地服务器组件（推荐）
-    PhpStudy
+PhpStudy
+[配置参考](https://blog.csdn.net/qq_38482205/article/details/120221941)
+
 #### PhpStorm
     从交大软件授权中心的JetBrainsToolbox中下载PhpStorm，打开项目并启动内建php服务器监听8000端口
     相应地，将前端代码/src/api/api.ts中，请求url前加入localhost:8000
