@@ -23,7 +23,7 @@ function generateCaptcha() {
   imagettftext($image, 24, 0, 6, 30, $textColor, $font, $code);
 
   $imagePath = 'image/captcha/'.uniqid().'.png';
-  imagepng($image, dirname(__FILE__).'/html/'.$imagePath);
+  imagepng($image, dirname(__DIR__).'/CloudCalendar-frontend/'.$imagePath);
   imagedestroy($image);
 
   header('Content-Type: application/json');
