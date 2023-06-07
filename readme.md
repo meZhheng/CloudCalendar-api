@@ -3,6 +3,15 @@
 ```
 git clone git@github.com:meZhheng/CloudCalendar-api.git
 ```
+### 目录结构
+将CloudCalendar-api与CloudCalendar-frontend放置在同一目录下
+```
+CloudCalendar
+  ├── CloudCalendar-api
+  └── CloudCalendar-frontend
+    ├── public
+    └── src
+```
 ### 配置环境
 确认本机PHP版本
 ```
