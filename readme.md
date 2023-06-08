@@ -28,9 +28,44 @@ extension=mysqli
 extension=openssl
 ```
 ### 本地运行
-#### 服务器组件（推荐）
-PhpStudy
-[配置参考](https://blog.csdn.net/qq_38482205/article/details/120221941)
+#### PhpStudy（推荐）
+##### nginx配置
+    打开 设置->配置文件->nginx->nginx.conf 将以下两段代码取消注释并修改为：
+```
+server {
+    listen       80;
+    listen       localhost:80;
+    server_name  localhost;
+    return 301   https://$server_name$request_uri;
+}
+
+server {
+    listen                      443 ssl;
+    server_name                 localhost;
+    ssl_certificate             cert.pem;
+    ssl_certificate_key         cert.key;
+    ssl_session_cache           shared:SSL:1m;
+    ssl_session_timeout         5m;
+    ssl_ciphers                 HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers   on;
+    location / {
+        root        F:\cloudcalendar\CloudCalendar-frontend\build;
+        try_files   $uri /index.html;
+        index       index.html index.htm;
+    }
+    location ~* \.php$ {
+        root            F:\cloudcalendar\CloudCalendar-api;
+        fastcgi_pass    localhost:9000;
+        fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include         fastcgi_params;
+    }
+}
+```
+    cert.pem和cert.key为自签名证书，放置在nginx.conf同目录下
+##### redis配置
+    打开 软件管理->redis 下载redis服务端
+##### 启动PhpStudy
+    在 首页->套件 中启动nginx、redis即可
 
 #### PhpStorm（可选）
     从交大软件授权中心的JetBrainsToolbox中下载PhpStorm，打开项目并启动内建php服务器监听8000端口
