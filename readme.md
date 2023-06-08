@@ -29,6 +29,9 @@ extension=openssl
 ```
 ### 本地运行
 #### PhpStudy（推荐）
+##### react打包
+    在CloudCalendar-frontend目录下，运行npm run build
+    在CloudCalendar-frontend目录下，出现build文件夹即打包成功
 ##### nginx配置
     打开 设置->配置文件->nginx->nginx.conf 将以下两段代码取消注释并修改为：
 ```
@@ -49,18 +52,19 @@ server {
     ssl_ciphers                 HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers   on;
     location / {
-        root        F:\cloudcalendar\CloudCalendar-frontend\build;
+        root        yourProjectPath\CloudCalendar\CloudCalendar-frontend\build;
         try_files   $uri /index.html;
         index       index.html index.htm;
     }
     location ~* \.php$ {
-        root            F:\cloudcalendar\CloudCalendar-api;
+        root            yourProjectPath\CloudCalendar\CloudCalendar-api;
         fastcgi_pass    localhost:9000;
         fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include         fastcgi_params;
     }
 }
 ```
+    注意将两处root后的路径改为自己的项目路径 
     cert.pem和cert.key为自签名证书，放置在nginx.conf同目录下
 ##### redis配置
     打开 软件管理->redis 下载redis服务端
