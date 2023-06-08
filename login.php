@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $tmp = $_SESSION['captcha'];
         $code = 503;
         $message = "验证码错误，请重试:$captcha $tmp";
-      } elseif ($pwd = $redis->get("user:$username") and password_verify($password, password_hash($pwd, PASSWORD_DEFAULT))) {
+      } elseif ($pwd = $redis->get("user:$username") and password_verify($password, $pwd)) {
         $code = 200;
         $message = '登录成功';
         $token = bin2hex(openssl_random_pseudo_bytes(32));

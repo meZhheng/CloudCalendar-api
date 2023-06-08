@@ -1,5 +1,7 @@
 <?php
-
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 function generateCaptcha() {
   $width = 108;
   $height = 36;
@@ -23,7 +25,7 @@ function generateCaptcha() {
   imagettftext($image, 24, 0, 6, 30, $textColor, $font, $code);
 
   $imagePath = 'image/captcha/'.uniqid().'.png';
-  imagepng($image, dirname(__FILE__).'/html/'.$imagePath);
+  imagepng($image, dirname(__DIR__).'/CloudCalendar-fronend/public/'.$imagePath);
   imagedestroy($image);
 
   header('Content-Type: application/json');
