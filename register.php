@@ -1,31 +1,50 @@
 <?php
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-  $data = json_decode(file_get_contents('php://input'), true);
+    session_start();
+    $redis = new Redis();
 
-  $test_username = "test";
-  $test_password = "test";
+    try{
+        $redis->pconnect('127.0.0.1');
 
-  $username = $data['username'];
-  $password = $data['password'];
+        $user = json_decode(file_get_contents('php://input'), true);
+        $username = $user['username'];
+        $password = $user['password'];
+        $captcha = $user['captcha'];
 
-  $hash = password_hash($test_password, PASSWORD_DEFAULT);
+        if (isset($_SESSION['captcha']) && !empty($_SESSION['captcha'])) {
+            if (strtolower($captcha) != strtolower($_SESSION['captcha'])) {
+                $tmp = $_SESSION['captcha'];
+                $code = 503;
+                $message = "验证码错误，请重试:$captcha $tmp";
+            } elseif ($redis->exists("user:$username")) {
+                $code = 503;
+                $message = "用户名已存在";
+            } else {
+                // 生成密码哈希值
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-  // 在这里进行账号密码验证和处理逻辑
-  // 例如，可以使用前面提到的 password_verify 函数验证密码
+                // 将用户名和哈希密码存储到数据库中
+                $redis->set("user:$username", $hashedPassword);
 
-  if ($username === $test_username && password_verify($password, $hash)) {
+                $code = 200;
+                $message = "注册成功";
+            }
+        }else {
+                throw new RedisException();
+            }
+
+        } catch (RedisException $e) {
+        $code = 503;
+        $message = '服务出错，请稍后重试';
+    }
+    header('Content-Type: application/json');
     $response = [
-      'success' => true,
-      'message' => '登录成功'
+        'code' => $code,
+        'message' => $message
     ];
-  }else{
-    $response = [
-      'success' => false,
-      'message' => '账号或密码错误'
-    ];
-  }
-
-  header('Content-Type: application/json');
-  echo json_encode($response);
+    echo json_encode($response);
 }
