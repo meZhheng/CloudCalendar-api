@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $password = $user['password'];
     $captcha = $user['captcha'];
 
-    if (isset($_SESSION['captcha']) && !empty($_SESSION['captcha'])) {
+    if (isset($_SESSION['captchaID']) && !empty($_SESSION['captchaID']) && isset($_SESSION['captcha']) && !empty($_SESSION['captcha'])) {
       if (strtolower($captcha) != strtolower($_SESSION['captcha'])) {
         $tmp = $_SESSION['captcha'];
         $code = 503;
@@ -27,6 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $code = 503;
         $message = "账号或密码错误，请重试 user:$username";
       }
+
+      unset($_SESSION['captcha']);
+      unlink(dirname(__DIR__).'/CloudCalendar-frontend/build/image/captcha/'.$_SESSION['captchaID'].'.png');
+      unset($_SESSION['captchaID']);
+
     } else {
       throw new RedisException();
     }
@@ -34,8 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $code = 503;
     $message = '服务出错，请稍后重试';
   }
-
-  unset($_SESSION['captcha']);
 
   header('Content-Type: application/json');
   $response = [

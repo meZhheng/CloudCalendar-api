@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $user['password'];
     $captcha = $user['captcha'];
 
-    if (isset($_SESSION['captcha']) && !empty($_SESSION['captcha'])) {
+    if (isset($_SESSION['captchaID']) && !empty($_SESSION['captchaID']) && isset($_SESSION['captcha']) && !empty($_SESSION['captcha'])) {
       if (strtolower($captcha) != strtolower($_SESSION['captcha'])) {
         $tmp = $_SESSION['captcha'];
         $code = 503;
@@ -21,14 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $code = 503;
         $message = "用户名已存在";
       } else {
-        // 生成密码哈希值
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        // 将用户名和哈希密码存储到数据库中
         $redis->set("user:$username", $hashedPassword);
 
         $code = 200;
         $message = "注册成功";
+        $token = bin2hex(openssl_random_pseudo_bytes(32));
       }
+
+      unset($_SESSION['captcha']);
+      unlink(dirname(__DIR__).'/CloudCalendar-frontend/build/image/captcha/'.$_SESSION['captchaID'].'.png');
+      unset($_SESSION['captchaID']);
+
     } else {
       throw new RedisException();
     }
@@ -40,7 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   header('Content-Type: application/json');
   $response = [
     'code' => $code,
-    'message' => $message
+    'message' => $message,
+    'token' => $token??null,
+    'user' => $username
   ];
   echo json_encode($response);
 }
