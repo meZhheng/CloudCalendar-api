@@ -7,12 +7,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
     $redis->pconnect('127.0.0.1');
     $redis->select(1);
+
+    $group = json_decode(file_get_contents('php://input'), true);
+    $username = $group['username'];
+    $groupname = $group['groupname'];
+    $description = $group['description']??'无';
+
     // 设置组信息
-    $redis->hSet('mygroup:creator123', 'name', 'My Group');
-    $redis->hSet('mygroup:creator123', 'description', 'This is my group');
-    // 添加成员
-    $redis->sAdd('mygroup:creator123:members', 'member1');
-    $redis->sAdd('mygroup:creator123:members', 'member2');
+    $redis->hSet("$username:$groupname", 'name', "$groupname");
+    $redis->hSet("$username:$groupname", 'description', "$description");
+//    // 添加成员
+//    $redis->sAdd('mygroup:creator123:members', 'member1');
+//    $redis->sAdd('mygroup:creator123:members', 'member2');
     // 关闭Redis连接
     $redis->close();
   } catch (RedisException $e) {
