@@ -4,12 +4,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
   $redis = new Redis();
 
   try {
-    $redis->pconnect('127.0.0.1');
+    $redis->connect('127.0.0.1');
 
     $user = json_decode(file_get_contents('php://input'), true);
     $username = $user['username'];
 
-    if($redis->del("userToken:$username")){
+    // 验证用户名
+    if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
+      $code = 400;
+      $message = "用户名不合法";
+    }
+    elseif($redis->del("userToken:$username")){
       $code = 200;
       $message = "用户：@$username 注销成功";
     } else {
