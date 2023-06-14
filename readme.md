@@ -58,9 +58,8 @@ server {
     }
     location ~* \.php$ {
         root            yourProjectPath\CloudCalendar\CloudCalendar-api;
-        set $fallback   "/router.php";
         fastcgi_pass    localhost:9000;
-        fastcgi_param   SCRIPT_FILENAME $document_root$fallback;
+        fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include         fastcgi_params;
     }
 }
