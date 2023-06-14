@@ -5,13 +5,13 @@ git clone git@github.com:meZhheng/CloudCalendar-api.git
 ```
 ### 目录结构
 将CloudCalendar-api与CloudCalendar-frontend放置在同一目录下
-```
-CloudCalendar
-  ├── CloudCalendar-api
-  └── CloudCalendar-frontend
-    ├── public
-    └── src
-```
+
+    CloudCalendar
+      ├── CloudCalendar-api
+      └── CloudCalendar-frontend
+        ├── public
+        └── src
+
 ### 配置环境
 确认本机PHP版本
 ```
@@ -21,12 +21,12 @@ php -v
 ### 安装依赖
 将PHP安装目录下php.ini-development复制到./lib下，并重命名为php.ini \
 打开文件 php.ini，取消以下配置的注释
-```
-extension_dir = "ext"
-extension=gd2
-extension=mysqli
-extension=openssl
-```
+
+    extension_dir = "ext"
+    extension=gd2
+    extension=mysqli
+    extension=openssl
+
 ### 本地运行
 #### PhpStudy（推荐）
 ##### react打包
@@ -58,8 +58,9 @@ server {
     }
     location ~* \.php$ {
         root            yourProjectPath\CloudCalendar\CloudCalendar-api;
+        $fallback       "/router.php";
         fastcgi_pass    localhost:9000;
-        fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param   SCRIPT_FILENAME $document_root$fallback;
         include         fastcgi_params;
     }
 }
