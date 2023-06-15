@@ -1,68 +1,74 @@
 <?php
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    session_start();
-    $redis = new Redis();
+  if (isset($_SERVER['HTTP_AUTHORIZATION']) && isset($_SERVER['HTTP_USERNAME'])) {
+    $token = $_SERVER['HTTP_AUTHORIZATION'];
+    if (!empty($token)) {
+      $token = str_replace('Bearer ', '', $token);
+    }
+    $username = $_SERVER['HTTP_USERNAME'];
+    if (!preg_match('/^[0-9a-f]{64}$/', $token)) {
+      $code = 400;
+      $message = "非法请求";
+    } else {
+      session_start();
+      $redis = new Redis();
 
-    try {
+      try {
         $redis->connect('127.0.0.1');
-        $redis->select(1);
+        if ($token === $redis->get("userToken:$username")) {
+          $redis->select(1);
 
-        $user = json_decode(file_get_contents('php://input'), true);
-        $username = $user['username'];
-        $nickname = $user['nickname'];
-        $location = $user['selectedOption'];
-        $apartment = $user['ApartmentValue'];
-        $position = $user['PositionValue'];
-        $mobile = $user['PhoneValue'];
-        $email = $user['EmailValue'];
-        $description = $user['AboutValue']??'本人很高冷，还没提供任何个人信息';
+          $user = json_decode(file_get_contents('php://input'), true);
+          $nickname = $user['nickname'];
+          $location = $user['selectedOption'];
+          $apartment = $user['ApartmentValue'];
+          $position = $user['PositionValue'];
+          $mobile = $user['PhoneValue'];
+          $email = $user['EmailValue'];
+          $description = $user['AboutValue'] ?? '本人很高冷，还没提供任何个人信息';
 
-
-        // 验证用户名
-        if ($redis->hexists("username:$username")) {
+          if (strlen($description) > 200) {
             $response = [
-                'code' => 400,
-                'message' => '用户名已存在'
+              $code = 400,
+              $message = "描述过长",
             ];
-        }
-        // 验证描述
-        elseif (strlen($description) > 200) {
-            $response = [
-                $code = 400,
-                $message = "描述过长",
-            ];
-        }
-        else {
+          } else {
             // 设置用户信息
             $hashKey = "user:$username";
-            $redis->hset($hashKey, 'nickname', $nickname);
-            $redis->hset($hashKey, 'location', $location);
-            $redis->hset($hashKey, 'apartment', $apartment);
-            $redis->hset($hashKey, 'position', $position);
-            $redis->hset($hashKey, 'mobile', $mobile);
-            $redis->hset($hashKey, 'email', $email);
-            $redis->hset($hashKey, 'description', $description);
+            $redis->hSet($hashKey, 'nickname', $nickname);
+            $redis->hSet($hashKey, 'location', $location);
+            $redis->hSet($hashKey, 'apartment', $apartment);
+            $redis->hSet($hashKey, 'position', $position);
+            $redis->hSet($hashKey, 'mobile', $mobile);
+            $redis->hSet($hashKey, 'email', $email);
+            $redis->hSet($hashKey, 'description', $description);
             // 关闭Redis连接
             $redis->close();
 
             $response = [
-                'code' => 200,
-                'message' => '用户信息修改成功',
-                'Nickname' => $nickname,
-                'Location' => $location,
-                'Apartment' => $apartment,
-                'Position' => $position,
-                'Mobile' => $mobile,
-                'Email' => $email,
-                'Description' => $description,
+              'code' => 200,
+              'message' => '用户信息修改成功',
+              'Nickname' => $nickname,
+              'Location' => $location,
+              'Apartment' => $apartment,
+              'Position' => $position,
+              'Mobile' => $mobile,
+              'Email' => $email,
+              'Description' => $description,
             ];
+          }
+        } else {
+          $code = 401;
+          $message = "非法请求";
         }
-    } catch (RedisException $e) {
+      } catch (RedisException $e) {
         $code = 503;
         $message = '服务出错，请稍后重试';
-    }
+      }
 
-    header('Content-Type: application/json');
-    echo json_encode($response);
+      header('Content-Type: application/json');
+      echo json_encode($response);
+    }
+  }
 }

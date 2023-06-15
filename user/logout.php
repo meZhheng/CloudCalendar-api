@@ -17,15 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     } elseif(!preg_match('/^[0-9a-f]{64}$/', $token)) {
       $code = 400;
       $message = "非法请求";
-    }
-    elseif($token === $redis->get("userToken:$username")) {
+    } elseif($token === $redis->get("userToken:$username")) {
       if($redis->del("userToken:$username")){
         $code = 200;
         $message = "用户：@$username 注销成功";
       } else {
         throw new RedisException();
       }
-    }else {
+    } else {
       $code = 401;
       $message = "非法请求";
     }
