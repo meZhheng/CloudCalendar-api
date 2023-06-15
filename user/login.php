@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
       if (strtolower($captcha) != strtolower($_SESSION['captcha'])) {
         $tmp = $_SESSION['captcha'];
         $code = 503;
-        $message = "验证码错误，请重试:$captcha $tmp";
+        $message = "验证码错误，请重试";
       } elseif ($pwd = $redis->get("user:$username") and password_verify($password, $pwd)) {
         $code = 200;
         $message = "登录成功";
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $redis->set("userToken:$username", $token);
       } else{
         $code = 503;
-        $message = "账号或密码错误，请重试 user:$username";
+        $message = "账号或密码错误，请重试";
       }
 
       unset($_SESSION['captcha']);
