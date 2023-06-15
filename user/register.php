@@ -43,6 +43,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = "注册成功";
         $token = bin2hex(openssl_random_pseudo_bytes(32));
         $redis->set("userToken:$username", $token);
+
+        $redis->select(1);
+          $hashKey = "user:$username";
+          $redis->hset($hashKey, 'nickname', "Create nickname here");
+          $redis->hset($hashKey, 'location', "shanghai");
+          $redis->hset($hashKey, 'apartment', "Create apartment here");
+          $redis->hset($hashKey, 'position', "Create position here");
+          $redis->hset($hashKey, 'mobile', "Create mobile here");
+          $redis->hset($hashKey, 'email', "Create email here");
+          $redis->hset($hashKey, 'description', "Create description here");
       }
 
       unset($_SESSION['captcha']);
