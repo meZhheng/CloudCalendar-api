@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 递增组群号并更新到 Redis
         $newGroupId = $redis->incr('current_groupid');
 
-        $redis->set("groupcode:$uuid", $newGroupId);
+        $redis->set("groupCode:$uuid", $newGroupId);
         $redis->set("groupCreator:$username",$groupName);
 
 
