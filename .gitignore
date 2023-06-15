@@ -1,2 +1,4 @@
 /.idea
 /html
+.htaccess
+nginx.htaccess
