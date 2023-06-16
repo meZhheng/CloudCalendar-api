@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $redis->hset($hashKey, 'creator', $username);
             $redis->hset($hashKey, 'groupname', $groupName);
             $redis->hset($hashKey, 'description', $description);
+            $redis->hset($hashKey, 'code', $uuid);
 
             $code = 200;
             $message = '组群创建成功';
