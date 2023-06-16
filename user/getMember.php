@@ -17,25 +17,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $redis->connect('127.0.0.1');
                 if ($token === $redis->get("userToken:$username")) {
                     $redis->select(1);
-                    // 从 'userGroup:$username' 中获取用户所属的组列表
-                    $userGroups = $redis->get("userGroup:$username");
-                    $groups = explode(',', $userGroups);
+                    // 获取用户所属的组id列表
+                    $groupIds = $redis->smembers("userGroup:$username");
 
+                    $result = [];
                     // 遍历每个组，获取组的 ID，并获取对应的用户
-                    foreach ($groups as $groupId) {
-                        // 组键的形式为 'group:id'
-                        $groupKey = "group:$groupId";
+                    foreach ($groupIds as $groupID) {
 
                         // 从 'group:$id:members' 中获取组的成员列表
-                        $groupMembersKey = "group:$groupId:members";
-                        $groupMembers = $redis->get($groupMembersKey);
+                        $groupName = $redis->hget("group:$groupID", "groupname");
+                        $groupMembers = $redis->smembers("group:$groupID:members");
+                        $groupMemberNum = count($groupMembers);
+                        $groupCode = $redis->hget("group:$groupID", "code");
+                        $groupData = [
+                            'groupName' => $groupName,
+                            'groupCode' => $groupCode,
+                            'groupMemberNum' => $groupMemberNum,
+                            'groupMembers' => $groupMembers,
+                        ];
 
-                        // 处理组的成员列表
-                        $members = explode(',', $groupMembers);
+                        // 添加组数据到结果数组
+                        $result[] = $groupData;
+                    }
 
-                        // 输出结果
-                        echo "Group ID: $groupId\n";
-                        echo "Group Members: " . implode(', ', $members) . "\n";}
+                    $code = 200; // 成功获取数据
+                    $message = "成功获取数据";
                 } else {
                     $code = 401;
                     $message = "非法请求";
@@ -49,11 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $code = 401;
         $message = "非法请求";
     }
+
+    $jsonData = json_encode($result ?? []); // 默认为空数组
     header('Content-Type: application/json');
     $response = [
         'code' => $code,
-        'message' => $message??null,
-        'userInfo' => $userInfo??null,
+        'message' => $message ?? null,
+        'userInfo' => $result ?? null,
     ];
     echo json_encode($response);
 }
+
