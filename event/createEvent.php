@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $redis->set("event:$eventID:creator", $username);
 
     $redis->select(1);
-    $redis->sAdd("group:1:events", $eventID);
+    $redis->sAdd("group:$groupID:events", $eventID);
     $code = 200;
     $message = "日程创建成功";
     $schedule = [
