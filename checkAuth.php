@@ -1,16 +1,31 @@
 <?php
 
-session_start();
+class AuthFailedException extends Exception {}
 
-$success = false;
-
-if (isset($_SESSION['user_id'])) {
-  $success = true;
+class AuthMiddleware {
+  /**
+   * @throws RedisException
+   * @throws AuthFailedException
+   */
+  public function handle() {
+    if (isset($_SERVER['HTTP_AUTHORIZATION']) && isset($_SERVER['HTTP_USERNAME'])) {
+      $token = str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
+      $username = $_SERVER['HTTP_USERNAME'];
+      if (!preg_match('/^[0-9a-f]{64}$/', $token) || !preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
+        throw new AuthFailedException("非法请求");
+      } else {
+        $redis = new Redis();
+        $redis->connect('127.0.0.1');
+        if ($token === $redis->get("userToken:$username")) {
+          $redis->close();
+          return $username;
+        } else {
+          throw new AuthFailedException("非法请求");
+        }
+      }
+    } else {
+      throw new AuthFailedException("非法请求");
+    }
+  }
 }
 
-$response = [
-  'success' => $success
-];
-
-header('Content-Type: application/json');
-echo json_encode($response);

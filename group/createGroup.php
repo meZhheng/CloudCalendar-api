@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $redis->sAdd("userGroup:$username", $newGroupID);
             $redis->sAdd("group:$newGroupID:members", $username);
-            $redis->incr("group:$newGroupID:num_members");
 
             $redis->set("groupCode:$uuid", $newGroupID);
             $redis->set("groupCreator:$username", $newGroupID);

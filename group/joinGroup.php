@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $redis->select(1);
           if ($groupID = $redis->get("groupCode:$groupCode")) {
             if ($redis->sAdd("group:$groupID:members", $username) && $redis->sAdd("userGroup:$username", $groupID)) {
-              $redis->incr("group:$groupID:num_members");
               $code = 200;
               $message = "加入组成功";
             } else {

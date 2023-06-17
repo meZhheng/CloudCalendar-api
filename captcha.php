@@ -1,4 +1,5 @@
 <?php
+
 function generateCaptcha() {
   $width = 108;
   $height = 36;
