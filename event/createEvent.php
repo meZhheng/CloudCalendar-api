@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $redis->connect('127.0.0.1');
     $event = json_decode(file_get_contents('php://input'), true);
     $eventCalendar = $event['eventCalendar'];
+    $groupID = $eventCalendar['selectedOptions'];
     $redis->select(2);
     $eventID = $redis->incr("event_id");
     $redis->hmset("event:$eventID", $eventCalendar);

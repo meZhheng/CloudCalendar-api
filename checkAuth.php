@@ -18,7 +18,7 @@ class AuthMiddleware {
         $redis->connect('127.0.0.1');
         if ($token === $redis->get("userToken:$username")) {
           $redis->close();
-          return $username;
+          return [$redis, $username];
         } else {
           throw new AuthFailedException("非法请求");
         }
