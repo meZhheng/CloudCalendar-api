@@ -3,26 +3,18 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_once "../checkAuth.php";
   $authMiddleware = new AuthMiddleware();
-  try{
+  try {
     [$redis, $username] = $authMiddleware->handle();
+
     $event = json_decode(file_get_contents('php://input'), true);
     $eventCalendar = $event['eventCalendar'];
-    $groupID = $eventCalendar['selectedOptions'];
+    $eventID = $eventCalendar['_id'];
     $redis->select(2);
-    $eventID = $redis->incr("event_id");
     $redis->hmset("event:$eventID", $eventCalendar);
-    $redis->set("event:$eventID:creator", $username);
 
-    $redis->select(1);
-    $redis->sAdd("group:$groupID:events", $eventID);
     $code = 200;
-    $message = "日程创建成功";
-    $schedule = [
-      '_id' => $eventID,
-      'title' => $eventCalendar['title'],
-      'start' => $eventCalendar['start'] ,
-      'endStr' => $eventCalendar['end'] ,
-    ];
+    $message = "日程修改成功";
+
   } catch (RedisException $e) {
     $code = 503;
     $message = "服务出错，请稍后重试";
@@ -34,8 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $response = [
     'code' => $code,
     'message' => $message,
-    'schedule' => $schedule??null
   ];
   echo json_encode($response);
 }
-

@@ -4,9 +4,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         require_once "../checkAuth.php";
         $authMiddleware = new AuthMiddleware();
-        $username = $authMiddleware->handle();
-        $redis = new Redis();
-        $redis->connect('127.0.0.1');
+        [$redis, $username] = $authMiddleware->handle();
+
         $redis->select(1);
         $userGroups = $redis->sMembers("userGroup:$username");
         $groupInfo = [];

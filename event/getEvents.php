@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           'title' => $redis->hGet("event:$groupEvent", "title"),
           'end' => $redis->hGet("event:$groupEvent", "end"),
           'start' => $redis->hGet("event:$groupEvent", "start"),
+          'backgroundColor' => $redis->hGet("event:$groupEvent", "backgroundColor"),
+          'textColor' => $redis->hGet("event:$groupEvent", "textColor"),
           'user' => $groupID
         ];
         $events[] = $event;
